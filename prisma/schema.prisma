@@ -1,0 +1,53 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model Personal {
+  @@map("personal")
+  id                Int              @id @default(autoincrement())
+  codigo            String?          @unique
+  nombre            String
+  email             String           @unique
+  password          String?
+  resetPasswordToken String?
+  telefono          String
+  puesto            String?
+  activo            Boolean
+  direccion         String
+  fechaCreacion     DateTime @default(now()) @db.Timestamptz(3)
+  fechaEdicion      DateTime @updatedAt @db.Timestamptz(3)
+  // role              Role[]
+  // empresa           Empresa[]
+  // Cotizacion        Cotizacion[]
+  // GuiaDeRemision    GuiaDeRemision[]
+  // Factura           Factura[]
+  // hojaRecepcion     HojaRecepcion[]
+  // presupuestos      Presupuesto[]
+  // guiaRemisionServicios GuiaRemisionServicios[]
+  // facturaServicios  FacturaServicios[]
+}
+
+// model Puesto {
+//   @@map("puesto")
+//   id                Int              @id @default(autoincrement())
+//   nombre            String
+//   activo            Boolean
+// }
+
+// model Puesto_Permiso {
+//   @@map("puesto_permiso")
+//   id                Int              @id @default(autoincrement())
+
+// }
