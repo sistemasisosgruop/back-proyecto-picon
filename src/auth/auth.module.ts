@@ -5,7 +5,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { jwtConstant } from 'src/common/constants/jwt.constant';
 import { MailService } from 'src/mail/mail.service';
 import { PrismaModule } from 'src/prisma/prisma.module';
-import { PersonalService } from 'src/personal/personal.service';
+import { PersonalService } from 'src/mantenimiento/personal/personal.service';
 
 @Module({
   controllers: [AuthController],

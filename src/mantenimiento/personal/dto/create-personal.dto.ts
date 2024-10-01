@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreatePersonalDto {
   @ApiProperty({ description: 'Codigo personal' })
@@ -10,11 +10,20 @@ export class CreatePersonalDto {
   @IsNotEmpty()
   @IsString()
   nombre: string;
+
+  @IsNotEmpty()
+  @IsString()
+  apellidos: string;
+
+  @IsNotEmpty()
+  @IsString()
+  dni: string;
+
   @IsNotEmpty()
   @IsEmail()
   email: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
   password: string;
 
@@ -22,9 +31,9 @@ export class CreatePersonalDto {
   @IsString()
   telefono: string;
 
-  @IsOptional()
-  @IsString()
-  puesto: string;
+  @IsNotEmpty()
+  @IsNumber()
+  puestoId: number;
 
   @IsNotEmpty()
   @IsBoolean()

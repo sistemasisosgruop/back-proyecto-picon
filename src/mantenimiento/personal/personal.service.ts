@@ -1,4 +1,9 @@
-import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { CreatePersonalDto } from './dto/create-personal.dto';
 import { UpdatePersonalDto } from './dto/update-personal.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -10,22 +15,37 @@ import { ACTIONS, ENTITY, FIELDS, VALIDATIONS } from 'src/common/constants/messa
 @Injectable()
 export class PersonalService {
   constructor(private prisma: PrismaService) {}
-  async create(personalDto: CreatePersonalDto) {
+  async create(personalDto: CreatePersonalDto, empresaId: number) {
     const validateEmail = await this.prisma.personal.findFirst({
       where: { email: personalDto.email },
     });
 
+    const validateDni = await this.prisma.personal.findFirst({
+      where: { dni: personalDto.dni },
+    });
     if (validateEmail) {
       throw new ConflictException(generateMessage(FIELDS.EMAIL, VALIDATIONS.ERRORS.ALREADY_EXISTS));
     }
+    if (validateDni)
+      throw new ConflictException(generateMessage(FIELDS.DNI, VALIDATIONS.ERRORS.ALREADY_EXISTS));
 
+    const validatePuesto = await this.prisma.puesto.findUnique({
+      where: { id: personalDto.puestoId },
+    });
+
+    if (!validatePuesto)
+      throw new UnprocessableEntityException(
+        generateMessage(FIELDS.ID + ' ' + ENTITY.PUESTO, VALIDATIONS.ERRORS.NOT_FOUND),
+      );
     await this.prisma.personal.create({
       data: {
         codigo: personalDto.codigo,
         nombre: personalDto.nombre,
+        apellidos: personalDto.apellidos,
+        dni: personalDto.dni,
         email: personalDto.email,
         telefono: personalDto.telefono,
-        puesto: personalDto.puesto,
+        puestoId: personalDto.puestoId,
         activo: personalDto.activo,
         direccion: personalDto.direccion,
       },
@@ -37,12 +57,18 @@ export class PersonalService {
     const validateEmail = await this.prisma.personal.findFirst({
       where: { email: personalDto.email, id: { not: idPersonal } },
     });
+    const validateDni = await this.prisma.personal.findFirst({
+      where: { dni: personalDto.dni, id: { not: idPersonal } },
+    });
     const validateCodigo = await this.prisma.personal.findFirst({
       where: { email: personalDto.codigo, id: { not: idPersonal } },
     });
     if (validateEmail) {
       throw new ConflictException(generateMessage(FIELDS.EMAIL, VALIDATIONS.ERRORS.ALREADY_EXISTS));
     }
+    if (validateDni)
+      throw new ConflictException(generateMessage(FIELDS.DNI, VALIDATIONS.ERRORS.ALREADY_EXISTS));
+
     if (validateCodigo) {
       throw new ConflictException(
         generateMessage(FIELDS.CODIGO, VALIDATIONS.ERRORS.ALREADY_EXISTS),
@@ -52,9 +78,11 @@ export class PersonalService {
       data: {
         codigo: personalDto.codigo,
         nombre: personalDto.nombre,
+        apellidos: personalDto.apellidos,
+        dni: personalDto.dni,
         email: personalDto.email,
         telefono: personalDto.telefono,
-        puesto: personalDto.puesto,
+        puestoId: personalDto.puestoId,
         activo: personalDto.activo,
         direccion: personalDto.direccion,
       },
@@ -62,6 +90,10 @@ export class PersonalService {
     });
 
     return generateMessage(ENTITY.PERSONAL, ACTIONS.UPDATED);
+  }
+  async encryptPassword(password: string) {
+    const salt = await bcryptjs.genSalt(10);
+    return await bcryptjs.hash(password, salt);
   }
   async updatePassword(idPersonal: number, passwordDto: updatePasswordDto): Promise<void> {
     // Verificar si las contraseñas coinciden
@@ -75,9 +107,7 @@ export class PersonalService {
       throw new BadRequestException('Los Passwords deben de ser iguales');
     }
 
-    // Encriptar la contraseña
-    const salt = await bcryptjs.genSalt(10);
-    const hashedPassword = await bcryptjs.hash(passwordDto.password, salt);
+    const hashedPassword = await this.encryptPassword(passwordDto.password);
 
     // Actualizar la contraseña en la base de datos
     await this.prisma.personal.update({

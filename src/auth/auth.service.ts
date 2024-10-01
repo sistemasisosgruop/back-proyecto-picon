@@ -5,7 +5,7 @@ import { jwtConstant } from 'src/common/constants/jwt.constant';
 import { LoginAuthDto } from './dto/login-auth.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { MailService } from 'src/mail/mail.service';
-import { PersonalService } from 'src/personal/personal.service';
+import { PersonalService } from 'src/mantenimiento/personal/personal.service';
 import * as bcryptjs from 'bcryptjs';
 
 @Injectable()

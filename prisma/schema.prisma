@@ -19,15 +19,22 @@ model Personal {
   id                Int              @id @default(autoincrement())
   codigo            String?          @unique
   nombre            String
+  apellidos         String?  
+  nombreAbreviado   String?
+  dni               String?          @unique
   email             String           @unique
   password          String?
   resetPasswordToken String?
   telefono          String
-  puesto            String?
+  puestoId            Int?
+  puesto            Puesto?   @relation(fields: [puestoId], references: [id])
+  empresaId         Int?
+  empresa           Empresa? @relation(fields: [empresaId], references: [id])
   activo            Boolean
   direccion         String
   fechaCreacion     DateTime @default(now()) @db.Timestamptz(3)
   fechaEdicion      DateTime @updatedAt @db.Timestamptz(3)
+
   // role              Role[]
   // empresa           Empresa[]
   // Cotizacion        Cotizacion[]
@@ -39,15 +46,85 @@ model Personal {
   // facturaServicios  FacturaServicios[]
 }
 
-// model Puesto {
-//   @@map("puesto")
-//   id                Int              @id @default(autoincrement())
-//   nombre            String
-//   activo            Boolean
-// }
+model Puesto {
+  @@map("puesto")
+  id                Int              @id @default(autoincrement())
+  nombre            String
+  activo            Boolean
+  personal          Personal[]
+}
+
 
 // model Puesto_Permiso {
 //   @@map("puesto_permiso")
 //   id                Int              @id @default(autoincrement())
 
 // }
+
+model Empresa {
+  @@map("empresa")
+  id                           Int                            @id @default(autoincrement())
+  // codigo                       String?                        @unique
+  nombre                       String
+  ruc                          String                         @unique
+  direccion                    String
+  telefono                     String
+  email                        String?
+  web                          String?
+  logo                         String?
+  activo                        Boolean @default(true)
+  personal                      Personal[]
+  sucursal                      Sucursal[]
+  almacen                       Almacen[]
+  familia                       Familia[]
+}
+
+model Sucursal {
+  id        Int      @id @default(autoincrement())
+  codigo    String?  @unique
+  nombre    String
+  direccion String?
+  telefono  String?
+  email     String?
+  empresaId Int
+  empresa   Empresa @relation(fields: [empresaId], references: [id])
+  activo    Boolean @default(true)
+
+  @@map("sucursal")
+}
+
+model Almacen {
+  id        Int      @id @default(autoincrement())
+  codigo    String?  @unique
+  nombre    String
+  direccion String
+  telefono  String
+  empresa   Empresa @relation(fields: [empresaId], references: [id])
+  empresaId Int
+  activo    Boolean @default(true)
+
+  @@map("almacen")
+}
+
+
+model Familia {
+  id          Int          @id @default(autoincrement())
+  codigo      String       @unique
+  descripcion String
+  empresa     Empresa     @relation(fields: [empresaId], references: [id])
+  empresaId   Int
+  SubFamilia  SubFamilia[]
+
+  @@map("familia")
+}
+
+model SubFamilia {
+  id          Int        @id @default(autoincrement())
+  codigo      String     @unique
+  descripcion String
+  familia     Familia   @relation(fields: [familiaId], references: [id])
+  familiaId   Int
+  // Material    Material[]
+
+  @@map("sub_familia")
+}

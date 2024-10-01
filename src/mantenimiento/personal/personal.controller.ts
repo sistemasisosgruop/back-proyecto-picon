@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, Put } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  HttpCode,
+  Put,
+  Query,
+} from '@nestjs/common';
 import { PersonalService } from './personal.service';
 import { CreatePersonalDto } from './dto/create-personal.dto';
 import { UpdatePersonalDto } from './dto/update-personal.dto';
@@ -22,11 +33,11 @@ export class PersonalController {
   @ApiResponse({ status: 201, description: 'El personal ha sido creado.' })
   @ApiResponse({ status: 400, description: 'Datos inválidos.' })
   @HttpCode(201)
-  async create(@Body() createPersonalDto: CreatePersonalDto) {
-    return await this.personalService.create(createPersonalDto);
+  async create(@Body() createPersonalDto: CreatePersonalDto, @Query() empresaId: number) {
+    return await this.personalService.create(createPersonalDto, empresaId);
   }
 
-  @Patch(':id')
+  @Put(':id')
   async updatePassword(@Param('id') id: string, @Body() passwordDto: updatePasswordDto) {
     return await this.personalService.updatePassword(+id, passwordDto);
   }
@@ -41,13 +52,13 @@ export class PersonalController {
     return await this.personalService.findOne(+id);
   }
 
-  @Put(':id')
-  async update(@Param('id') id: string, @Body() updatePersonalDto: UpdatePersonalDto) {
-    return await this.personalService.update(+id, updatePersonalDto);
-  }
+  // @Put(':id')
+  // async update(@Param('id') id: string, @Body() updatePersonalDto: UpdatePersonalDto) {
+  //   return await this.personalService.update(+id, updatePersonalDto);
+  // }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.personalService.remove(+id);
+  async remove(@Param('id') id: string) {
+    return await this.personalService.remove(+id);
   }
 }

@@ -1,5 +1,7 @@
 export const ENTITY = {
   PERSONAL: 'Personal',
+  PUESTO: 'Puesto',
+  EMPRESA: 'Empresa',
 };
 
 export const ACTIONS = {
@@ -33,6 +35,9 @@ export const VALIDATIONS = {
 export const FIELDS = {
   ID: 'id',
   EMAIL: 'email',
+  RUC: 'RUC',
+  DNI: 'DNI',
+  APELLIDOS: 'Apellidos',
   CODIGO: 'codigo',
   PASSWORD: 'password',
   REPEAT_PASSWORD: 'repeatPassword',
